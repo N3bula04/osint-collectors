@@ -1,0 +1,8 @@
+{
+  "fixture.test:A": {"status": "ok", "answers": ["192.0.2.10", "192.0.2.11"]},
+  "fixture.test:MX": {"status": "ok", "answers": ["10 mail.fixture.test."]},
+  "fixture.test:TXT": {"status": "ok", "answers": ["\"v=spf1 include:_spf.fixture.test -all\""]},
+  "fixture.test:AAAA": {"status": "empty", "answers": []},
+  "gone.fixture.test:A": {"status": "nxdomain", "answers": []},
+  "192.0.2.10:PTR": {"status": "ok", "answers": ["web1.fixture.test."]}
+}

@@ -1,0 +1,3 @@
+{"objectClassName": "domain", "ldhName": "fixture.test",
+ "events": [{"eventAction": "registration", "eventDate": "2020-02-02T00:00:00Z"}],
+ "entities": [{"roles": ["registrar"], "vcardArray": ["vcard", [["fn", {}, "text", "Fixture Registrar"]]]}]}

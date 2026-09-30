@@ -1,0 +1,8 @@
+[
+  {"id": 1001, "issuer_name": "C=XX, O=Fixture CA, CN=Fixture Issuing CA 1", "common_name": "fixture.test",
+   "name_value": "fixture.test\n*.fixture.test", "not_before": "2026-01-01T00:00:00", "not_after": "2026-12-31T00:00:00"},
+  {"id": 1001, "issuer_name": "C=XX, O=Fixture CA, CN=Fixture Issuing CA 1", "common_name": "fixture.test",
+   "name_value": "shop.fixture.test", "not_before": "2026-01-01T00:00:00", "not_after": "2026-12-31T00:00:00"},
+  {"id": 1002, "issuer_name": "C=XX, O=Fixture CA, CN=Fixture Issuing CA 1", "common_name": "old.fixture.test",
+   "name_value": "old.fixture.test", "not_before": "2025-01-01T00:00:00", "not_after": "2025-04-01T00:00:00"}
+]

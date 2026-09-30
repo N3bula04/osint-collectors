@@ -1,0 +1,2 @@
+{"objectClassName": "ip network", "startAddress": "192.0.2.0", "endAddress": "192.0.2.255",
+ "cidr0_cidrs": [{"v4prefix": "192.0.2.0", "length": 24}], "name": "TEST-NET-1"}
