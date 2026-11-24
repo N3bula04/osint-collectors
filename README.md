@@ -60,16 +60,20 @@ cache = Cache(".cache")                      # one JSON file per query, 24h TTL
 client = HttpClient(user_agent="my-tool/1.0 (+contact URL)")
 
 status, answers, detail = dns_query(make_resolver(), cache, "example.com", "MX")
+print("DNS MX:", status, answers, detail)
 
 status, entries, detail = crtsh_fetch(cache, "example.com", client=client)
 certs = parse_ct_entries(entries)            # {cert_id: {issuer, not_before, not_after, names}}
+print("crt.sh:", status, detail, f"({len(certs)} certs)")
 
 try:
     status, data, detail = rdap_fetch(cache, "domain", "example.com", client=client)
+    print("RDAP:", status, detail)
 except RateLimited as e:                     # stop RDAP for this run and remember the window
     rdap_record_backoff(cache, e.retry_after)
+    print("RDAP rate-limited; backing off for", e.retry_after, "s")
 
-registrable_domain("mail.example.co.uk")     # 'example.co.uk'
+print("registrable:", registrable_domain("mail.example.co.uk"))  # example.co.uk
 ```
 
 Every fetch returns `(status, data, detail)`. `status` is one of `ok`, `empty`,
@@ -97,10 +101,15 @@ or `run_in_threadpool`.
 ### Offline replay
 
 ```python
+from osint_collectors.cache import Cache
+from osint_collectors.dns import make_resolver, dns_query
 from osint_collectors.offline import offline_session
 
-with offline_session("fixtures/", fixed_time="2026-09-30T00:00:00+00:00"):
-    ...   # DNS comes from fixtures/dns.json; any socket/requests use raises NetworkBlockedError
+with offline_session("tests/fixtures/", fixed_time="2026-09-30T00:00:00+00:00"):
+    cache = Cache(".cache")
+    status, answers, detail = dns_query(make_resolver(), cache, "fixture.test", "A")
+    print("offline DNS fixture.test A:", status, answers, detail)
+    # DNS comes from tests/fixtures/dns.json; any socket/requests use raises NetworkBlockedError
 ```
 
 `dns.json` maps `"name:RTYPE"` to `{"status": "ok"|"empty"|"nxdomain", "answers": [...]}`.
