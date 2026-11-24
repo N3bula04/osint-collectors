@@ -124,6 +124,26 @@ tested against local fake servers on 127.0.0.1. The offline tests replay
 fictional `.test` / RFC 5737 fixtures with the network blocked. CI runs on
 Python 3.10 and 3.12.
 
+### Live smoke tests
+
+The default pytest run stays offline. For an occasional manual check, run:
+
+```sh
+OSINT_LIVE=1 python -m pytest -m live -q
+```
+
+`python -m pytest -m live -q` also opts in. On GitHub, run the **Live smoke tests**
+workflow manually from the Actions tab. Please keep these checks occasional to
+limit traffic to public providers.
+
+The tests query `example.com` on crt.sh, RDAP and public DNS through the
+configured resolver. A successful lookup with no results (`empty` or
+`nxdomain`) fails when records are expected and may indicate a provider change.
+An unavailable source (`timeout`, `error`, `skipped` or rate limiting) produces
+a test skip with the reason. Add `-rs` to show skip reasons in pytest.
+Intercepting DNS resolvers can return misleading answers. The DNS test skips if
+all A answers fall within the benchmark range `198.18.0.0/15`.
+
 ## Responsible use
 
 Only query infrastructure you have a legitimate reason to look at, keep request

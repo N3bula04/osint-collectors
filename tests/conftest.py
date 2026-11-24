@@ -1,4 +1,5 @@
 import json
+import os
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Callable, List
@@ -8,6 +9,16 @@ import pytest
 from osint_collectors import clock
 from osint_collectors.cache import Cache
 from osint_collectors.http import HttpClient
+
+
+def pytest_collection_modifyitems(config, items):
+    if os.environ.get("OSINT_LIVE") == "1" or config.option.markexpr.strip() == "live":
+        return
+
+    skip_live = pytest.mark.skip(reason="use OSINT_LIVE=1 or pytest -m live to run live tests")
+    for item in items:
+        if item.get_closest_marker("live"):
+            item.add_marker(skip_live)
 
 
 class FakeServer:

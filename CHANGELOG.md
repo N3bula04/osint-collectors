@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add opt-in live smoke tests for crt.sh, RDAP and DNS, with a manually triggered GitHub Actions workflow.
+
 ## 0.1.0 (2026-09-30)
 
 First release. The collection code comes out of
