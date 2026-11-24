@@ -122,7 +122,7 @@ crt.sh JSON and `rdap.load_saved_rdap` for saved RDAP files.
 Retry-After, 5xx retries, timeouts not being cached, the bootstrap fallback) is
 tested against local fake servers on 127.0.0.1. The offline tests replay
 fictional `.test` / RFC 5737 fixtures with the network blocked. CI runs on
-Python 3.9 and 3.12.
+Python 3.10 and 3.12.
 
 ## Responsible use
 
