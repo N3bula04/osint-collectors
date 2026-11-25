@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest==8.4.2", "pyflakes==3.2.0"]
+test = ["pytest==9.2.0", "pyflakes==3.2.0"]
 
 [project.urls]
 Source = "https://github.com/N3bula04/osint-collectors"
