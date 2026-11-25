@@ -149,10 +149,18 @@ def ip_block(obj: dict) -> str:
 
 def load_saved_rdap(rdap_dir: pathlib.Path, kind: str, target: str) -> Tuple[str, Optional[dict], str]:
     """Read DIR/<kind>_<target>.json (colons in IPv6 replaced by '-', since Windows forbids them)."""
-    p = pathlib.Path(rdap_dir) / f"{kind}_{target.replace(':', '-')}.json"
-    if not p.exists():
-        return "empty", None, f"no saved file {p.name} in offline mode"
+    if ":" in kind or any(
+        token in component for component in (kind, target) for token in ("..", "/", "\\", "\x00")
+    ):
+        return "error", None, "invalid saved RDAP kind or target"
+    filename = f"{kind}_{target.replace(':', '-')}.json"
     try:
-        return "ok", json.loads(p.read_text(encoding="utf-8")), f"loaded from {p.name} (no network)"
-    except (OSError, ValueError) as e:
-        return "error", None, f"could not read {p.name}: {e}"
+        root = pathlib.Path(rdap_dir).resolve()
+        path = (root / filename).resolve()
+        if root not in path.parents:
+            return "error", None, "saved RDAP path is outside the RDAP directory"
+        if not path.exists():
+            return "empty", None, f"no saved file {filename} in offline mode"
+        return "ok", json.loads(path.read_text(encoding="utf-8")), f"loaded from {filename} (no network)"
+    except (OSError, ValueError, RuntimeError) as e:
+        return "error", None, f"could not read {filename}: {e}"

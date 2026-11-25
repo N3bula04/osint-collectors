@@ -105,3 +105,21 @@ def test_load_saved_rdap(tmp_path):
     assert load_saved_rdap(tmp_path, "ip", "2001:db8::1") == ("ok", {"x": 1}, "loaded from ip_2001-db8--1.json (no network)")
     assert load_saved_rdap(tmp_path, "domain", "x.test") == ("empty", None, "no saved file domain_x.test.json in offline mode")
     assert load_saved_rdap(tmp_path, "domain", "bad.test")[0] == "error"
+
+
+@pytest.mark.parametrize("component", ["..", "bad..name", "nested/name", r"nested\name"])
+@pytest.mark.parametrize("field", ["kind", "target"])
+def test_load_saved_rdap_rejects_unsafe_components(tmp_path, component, field):
+    inputs = {"kind": "domain", "target": "example.com"}
+    inputs[field] = component
+    assert load_saved_rdap(tmp_path, **inputs)[:2] == ("error", None)
+
+
+def test_load_saved_rdap_rejects_symlink_escape(tmp_path):
+    rdap_dir = tmp_path / "rdap"
+    rdap_dir.mkdir()
+    outside = tmp_path / "outside.json"
+    outside.write_text(json.dumps(DOMAIN), encoding="utf-8")
+    (rdap_dir / "domain_example.com.json").symlink_to(outside)
+
+    assert load_saved_rdap(rdap_dir, "domain", "example.com")[:2] == ("error", None)

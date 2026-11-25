@@ -1,4 +1,5 @@
 import dns.resolver
+import pytest
 
 from osint_collectors import clock
 from osint_collectors.cache import Cache
@@ -47,6 +48,40 @@ def test_cache_disabled_writes_nothing(tmp_path):
 def test_cache_key_is_filesystem_safe(tmp_path):
     p = Cache(tmp_path).path_for("crtsh", "%.example.com/../x?")
     assert p.parent == tmp_path / "crtsh" and "/" not in p.name and p.name.endswith(".json")
+
+
+@pytest.mark.parametrize("namespace", ["..", "../outside", "nested/path", r"nested\path", "absolute"])
+def test_cache_rejects_unsafe_namespace(tmp_path, namespace):
+    cache = Cache(tmp_path / "cache")
+    if namespace == "absolute":
+        namespace = str(tmp_path / "outside")
+
+    with pytest.raises(ValueError, match="invalid cache namespace"):
+        cache.put(namespace, "key", {"value": 1})
+    with pytest.raises(ValueError, match="invalid cache namespace"):
+        cache.get(namespace, "key")
+
+    assert list(tmp_path.iterdir()) == [cache.root]
+    assert list(cache.root.iterdir()) == []
+
+
+@pytest.mark.parametrize("link_file", [False, True])
+def test_cache_rejects_symlink_escape(tmp_path, link_file):
+    cache = Cache(tmp_path / "cache")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    if link_file:
+        path = cache.path_for("ns", "key")
+        path.symlink_to(outside / path.name)
+    else:
+        (cache.root / "ns").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="outside the cache root"):
+        cache.put("ns", "key", {"value": 1})
+    with pytest.raises(ValueError, match="outside the cache root"):
+        cache.get("ns", "key")
+
+    assert list(outside.iterdir()) == []
 
 
 def test_dns_tcp_retry_and_caching(tmp_path):

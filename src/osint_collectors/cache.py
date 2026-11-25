@@ -25,11 +25,19 @@ class Cache:
             self.root.mkdir(parents=True, exist_ok=True)
 
     def path_for(self, namespace: str, key: str) -> pathlib.Path:
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", namespace) or namespace in (".", ".."):
+            raise ValueError("invalid cache namespace")
         safe = re.sub(r"[^A-Za-z0-9._-]", "_", key)[:80]
         digest = hashlib.sha1(key.encode()).hexdigest()[:10]
-        d = self.root / namespace
-        d.mkdir(parents=True, exist_ok=True)
-        return d / f"{safe}_{digest}.json"
+        root = self.root.resolve()
+        directory = (root / namespace).resolve()
+        if root not in directory.parents:
+            raise ValueError("cache namespace is outside the cache root")
+        path = (directory / f"{safe}_{digest}.json").resolve()
+        if root not in path.parents:
+            raise ValueError("cache path is outside the cache root")
+        directory.mkdir(parents=True, exist_ok=True)
+        return path
 
     _path = path_for  # backwards-compatible name
 
